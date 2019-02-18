@@ -55,7 +55,7 @@ volume_metric_list = Listbox(window, width=10, height=3, selectbackground="grey"
 for item in volumes:
     volume_metric_list.insert(volume_counter, item)
     volume_counter +=1
-volume_metric_list.grid(row=volume_counter, column=1)
+volume_metric_list.grid(row=3, column=1)
 
 # create the 'convert' button for the volume conversion
 volume_convert_button = Button(window, text="Convert", command=volumer_converter)
@@ -70,12 +70,12 @@ volume_convert_button.grid(row=3, column=2)
 #vol_frame.grid_columnconfigure(0, weight=1)
 
 # create the volume conversion ouput field
-volume_output = Text(window, wrap="word", font="avenir", height=10, width=20)
-#vol_scrollbar = Scrollbar(volume_output)
-#vol_scrollbar.config(command=volume_output.yview)
-#volume_output.config(yscrollcommand=vol_scrollbar.set)
-volume_output.grid(row=3, column=3, columnspan=5)
-#vol_scrollbar.grid(row=3, column=4, sticky="ns")
+volume_output = Text(window, wrap="word", font="avenir", height=3, width=30)
+vol_scrollbar = Scrollbar(window)
+vol_scrollbar.config(command=volume_output.yview)
+volume_output.config(yscrollcommand=vol_scrollbar.set)
+volume_output.grid(row=3, column=3)
+vol_scrollbar.grid(row=3, column=5, sticky="nsw")
 
 # create the scrollbar for the volume conversion output field
 
