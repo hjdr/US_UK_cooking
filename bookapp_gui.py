@@ -7,34 +7,37 @@ window = Tk()
 volumes = ["ml (Metric)", "oz (Imperial)", "US Cups"]
 volume_counter = 1
 
-
-class Output_field:
+class OutputField:
     def __init__(self, output_row, output_column, scroll_row, scroll_column):
         self.output_row = output_row
         self.output_column = output_column
         self.scroll_row = scroll_row
         self.scroll_column = scroll_column
 
-        output = Text(window, wrap="word", font="avenir", height=3, width=30)
+        self.output = Text(window, wrap="word", font="avenir", height=3, width=30)
         scrollbar = Scrollbar(window)
-        scrollbar.config(command=output.yview)
-        output.config(yscrollcommand=scrollbar.set)
-        output.grid(row=self.output_row, column=self.output_column)
+        scrollbar.config(command=self.output.yview)
+        self.output.config(yscrollcommand=scrollbar.set)
+        self.output.grid(row=self.output_row, column=self.output_column)
         scrollbar.grid(row=self.scroll_row, column=self.scroll_column, sticky="nsw")
-        output.insert(END, output)
 
-# create volume converter function
-def volumer_converter():
-    volume_selection = volume_metric_list.curselection()[0]
-    if volume_selection == 0:
-        metric_imperial_calc = int(int(volume_entry.get()) * 0.0351951)
-        if float(volume_entry.get()) > 30:
-            uscups_fraction = metric_to_uscups(float(volume_entry.get()))
-        else:
-            uscups_tablespoon = 1
-        output = "{}ml is {} oz or {} US cup(s) \n".format(volume_entry.get(), metric_imperial_calc, uscups_fraction)
-        return output
-        volume_output.insert(END, output)
+    def insert(self, end, x):
+        self.output.insert(end, x)
+
+
+
+class VolumeField(OutputField):
+    def volume_converter(self):
+        volume_selection = volume_metric_list.curselection()[0]
+        if volume_selection == 0:
+            metric_imperial_calc = int(int(volume_entry.get()) * 0.0351951)
+            if float(volume_entry.get()) > 30:
+                uscups_fraction = metric_to_uscups(float(volume_entry.get()))
+            else:
+                uscups_tablespoon = 1
+            output = "{}ml is {} oz or {} US cup(s) \n".format(volume_entry.get(), metric_imperial_calc, uscups_fraction)
+            self.insert(END, output)
+
 
 # create a function which rounds to nearest 5, used for the metric to US cups func
 def round_to_five(number, base=5):
@@ -74,22 +77,12 @@ for item in volumes:
     volume_counter +=1
 volume_metric_list.grid(row=3, column=1)
 
+volume_output = VolumeField(3, 3, 3, 5)
+
+
 # create the 'convert' button for the volume conversion
-volume_convert_button = Button(window, text="Convert", command=volumer_converter)
+volume_convert_button = Button(window, text="Convert", command=volume_output.volume_converter)
 volume_convert_button.grid(row=3, column=2)
 
-
-# create the volume conversion ouput field
-#volume_output = Text(window, wrap="word", font="avenir", height=3, width=30)
-#vol_scrollbar = Scrollbar(window)
-#vol_scrollbar.config(command=volume_output.yview)
-#volume_output.config(yscrollcommand=vol_scrollbar.set)
-#volume_output.grid(row=3, column=3)
-#vol_scrollbar.grid(row=3, column=5, sticky="nsw")
-
-volume_output = Output_field(3, 3, 3, 5)
-
-
-# create the scrollbar for the volume conversion output field
 
 window.mainloop()
