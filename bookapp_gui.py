@@ -1,4 +1,4 @@
-from Tkinter import *
+from tkinter import *
 from fractions import Fraction, gcd
 
 window = Tk()
@@ -17,7 +17,6 @@ def volumer_converter():
         else:
             uscups_tablespoon = 1
         output = "{}ml is {} oz or {} US cup(s) \n".format(volume_entry.get(), metric_imperial_calc, uscups_fraction)
-        volume_output.delete(END)
         volume_output.insert(END, output)
 
 # create a function which rounds to nearest 5, used for the metric to US cups func
@@ -26,12 +25,12 @@ def round_to_five(number, base=5):
 
 # create the function which converts metric to US cups (fractions)
 def metric_to_uscups(metric_number):
-    number_to_round = Fraction(float(metric_number) / 250 *100)
+    number_to_round = float(metric_number) / 250 *100
     rounded_number = round_to_five(number_to_round)
     greatest_common_divisor = gcd(rounded_number, 100)
     lowest_numerator = rounded_number / greatest_common_divisor
     lowest_denominator = 100 / greatest_common_divisor
-    metric_uscups_ouput = Fraction(lowest_numerator, lowest_denominator)
+    metric_uscups_ouput = Fraction(int(lowest_numerator), int(lowest_denominator))
     return metric_uscups_ouput
 
 # create title for application
@@ -60,16 +59,26 @@ volume_metric_list.grid(row=volume_counter, column=1)
 
 # create the 'convert' button for the volume conversion
 volume_convert_button = Button(window, text="Convert", command=volumer_converter)
-volume_convert_button.grid(row=3, column=2, sticky="ns")
+volume_convert_button.grid(row=3, column=2)
+
+
+# create a frame for the volume converstion ouput field and the scrollbar
+#vol_frame = Frame(window, width=600, height=600)
+#vol_frame.pack(fill="both", expand=True)
+#vol_frame.grid_propagate(False)
+#vol_frame.grid_rowconfigure(0, weight=1)
+#vol_frame.grid_columnconfigure(0, weight=1)
 
 # create the volume conversion ouput field
-volume_output = Text(window, height=2, width=60, bd=2)
-volume_output.grid(row=3, column=3)
+volume_output = Text(window, wrap="word", font="avenir", height=10, width=20)
+#vol_scrollbar = Scrollbar(volume_output)
+#vol_scrollbar.config(command=volume_output.yview)
+#volume_output.config(yscrollcommand=vol_scrollbar.set)
+volume_output.grid(row=3, column=3, columnspan=5)
+#vol_scrollbar.grid(row=3, column=4, sticky="ns")
 
 # create the scrollbar for the volume conversion output field
-vol_scrollbar = Scrollbar(volume_output, orient="vertical", command=Text.yview)
-vol_scrollbar.grid(row=3, column=4)
-vol_scrollbar.config(comman=volume_output.yview)
-volume_output.config(yscrollcommand=vol_scrollbar.set)
+
+
 
 window.mainloop()
