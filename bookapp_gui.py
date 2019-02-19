@@ -32,11 +32,13 @@ class VolumeField(OutputField):
         if volume_selection == 0:
             metric_imperial_calc = int(int(volume_entry.get()) * 0.0351951)
             if float(volume_entry.get()) > 30:
-                uscups_fraction = metric_to_uscups(float(volume_entry.get()))
+                uscups_output = metric_to_uscups(float(volume_entry.get()))
+                vol_output = "{}ml is {} oz or {} US cup(s) \n".format(volume_entry.get(), metric_imperial_calc, uscups_output)
+                OutputField.insert(self, END, vol_output)
             else:
                 uscups_tablespoon = 1
-            vol_output = "{}ml is {} oz or {} US cup(s) \n".format(volume_entry.get(), metric_imperial_calc, uscups_fraction)
-            OutputField.insert(self, END, vol_output)
+                vol_output = "{}ml is {} oz or {} tablespoon \n".format(volume_entry.get(), metric_imperial_calc, uscups_tablespoon)
+                OutputField.insert(self, END, vol_output)
 
 
 # create a function which rounds to nearest 5, used for the metric to US cups func
@@ -50,8 +52,12 @@ def metric_to_uscups(metric_number):
     greatest_common_divisor = gcd(rounded_number, 100)
     lowest_numerator = rounded_number / greatest_common_divisor
     lowest_denominator = 100 / greatest_common_divisor
-    metric_uscups_ouput = Fraction(int(lowest_numerator), int(lowest_denominator))
-    return metric_uscups_ouput
+    metric_uscups_fraction = Fraction(int(lowest_numerator), int(lowest_denominator))
+    if lowest_numerator > lowest_denominator:
+        metric_uscups_cups = lowest_numerator / lowest_denominator
+        return metric_uscups_cups
+    else:
+        return metric_uscups_fraction
 
 # create title for application
 tite_text = Label(window, text="The US & UK food measurement converter", font="avenir 25")
