@@ -25,6 +25,7 @@ class OutputField:
     def insert(self, text_position, conversion_output):
         self.output.insert(text_position, conversion_output)
 
+
 # create the volume field class to be used for volume outputs
 class VolumeField(OutputField):
     def volume_converter(self):
@@ -39,6 +40,17 @@ class VolumeField(OutputField):
                 uscups_tablespoon = 1
                 vol_output = "{}ml is {} oz or {} tablespoon \n".format(volume_entry.get(), metric_imperial_calc, uscups_tablespoon)
                 OutputField.insert(self, END, vol_output)
+
+
+class MeasurementTitle:
+    def __init__(self, title_text, title_row, title_column, title_columnspan):
+        self.title_text = title_text
+        self.title_row = title_row
+        self.title_column = title_column
+        self.title_columnspan = title_columnspan
+
+        output = Label(window, text=self.title_text, padx=40, bg="dark grey", relief=FLAT, font="avenir", fg="white")
+        output.grid(row=self.title_row, column=self.title_column, columnspan=self.title_columnspan)
 
 
 # create a function which rounds to nearest 5, used for the metric to US cups func
@@ -68,8 +80,7 @@ subtitle_text = Label(window, text="Here you can enter measurements such as volu
 subtitle_text.grid(row=1, column=0, columnspan=3)
 
 # create the title for the volume conversion section
-volume_title = Label(window, text="Volume", padx=40, bg="dark grey", relief=FLAT, font="avenir", fg="white")
-volume_title.grid(row=2, column=0, columnspan=3)
+VolumeTitle = MeasurementTitle("Volume", 2, 0, 3)
 
 # create the entry field where the user enters the volume to be converted
 volume_entry = StringVar()
