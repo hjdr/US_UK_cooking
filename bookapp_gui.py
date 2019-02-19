@@ -7,6 +7,7 @@ window = Tk()
 volumes = ["ml (Metric)", "oz (Imperial)", "US Cups"]
 volume_counter = 1
 
+# create the output field class to be used for all conversion outputs
 class OutputField:
     def __init__(self, output_row, output_column, scroll_row, scroll_column):
         self.output_row = output_row
@@ -21,11 +22,10 @@ class OutputField:
         self.output.grid(row=self.output_row, column=self.output_column)
         scrollbar.grid(row=self.scroll_row, column=self.scroll_column, sticky="nsw")
 
-    def insert(self, end, x):
-        self.output.insert(end, x)
+    def insert(self, text_position, conversion_output):
+        self.output.insert(text_position, conversion_output)
 
-
-
+# create the volume field class to be used for volume outputs
 class VolumeField(OutputField):
     def volume_converter(self):
         volume_selection = volume_metric_list.curselection()[0]
@@ -35,8 +35,8 @@ class VolumeField(OutputField):
                 uscups_fraction = metric_to_uscups(float(volume_entry.get()))
             else:
                 uscups_tablespoon = 1
-            output = "{}ml is {} oz or {} US cup(s) \n".format(volume_entry.get(), metric_imperial_calc, uscups_fraction)
-            self.insert(END, output)
+            vol_output = "{}ml is {} oz or {} US cup(s) \n".format(volume_entry.get(), metric_imperial_calc, uscups_fraction)
+            OutputField.insert(self, END, vol_output)
 
 
 # create a function which rounds to nearest 5, used for the metric to US cups func
@@ -83,6 +83,5 @@ volume_output = VolumeField(3, 3, 3, 5)
 # create the 'convert' button for the volume conversion
 volume_convert_button = Button(window, text="Convert", command=volume_output.volume_converter)
 volume_convert_button.grid(row=3, column=2)
-
 
 window.mainloop()
