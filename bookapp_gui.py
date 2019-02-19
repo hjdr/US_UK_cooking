@@ -31,29 +31,37 @@ class OutputField:
 class VolumeField(OutputField):
 
     uscups_tablespoon = 1
+    ml_uscup_equiv = 250
+    oz_uscup_equiv = 8
 
     def volume_converter(self):
         volume_selection = volume_metric_list.curselection()[0]
         if volume_selection == 0:
-            metric_imperial_calc = int(int(volume_entry.get()) * 0.0351951)
-            if float(volume_entry.get()) > 30:
-                uscups_output = measurement_calc((float(volume_entry.get())), 250)
-                metric_output = "{}mL is {} fluid oz or {} US cup(s) \n".format(volume_entry.get(), metric_imperial_calc, uscups_output)
+            metric_imperial_calc = int(int(VolumeEntry.measurement_entry.get()) * 0.0351951)
+            if float(VolumeEntry.measurement_entry.get()) > 30:
+                uscups_output = measurement_to_uscup_calc((float(VolumeEntry.measurement_entry.get())), VolumeField.ml_uscup_equiv)
+                metric_output = "{}mL is {} fluid oz or {} US cup(s) \n".format(VolumeEntry.measurement_entry.get(), metric_imperial_calc, uscups_output)
                 OutputField.insert(self, END, metric_output)
             else:
-                vol_output = "{}mL is {} fluid oz or {} tablespoon \n".format(volume_entry.get(), metric_imperial_calc, VolumeField.uscups_tablespoon)
+                vol_output = "{}mL is {} fluid oz or {} tablespoon \n".format(VolumeEntry.measurement_entry.get(), metric_imperial_calc, VolumeField.uscups_tablespoon)
                 OutputField.insert(self, END, vol_output)
         if volume_selection == 1:
-            imperial_metric_calc = int(float(volume_entry.get()) * 29.5735)
-            if float(volume_entry.get()) > 0.5:
-                uscups_output = measurement_calc((float(volume_entry.get())), 8)
-                imperial_output = "{}oz is {}mL or {} US cup(s) \n".format(volume_entry.get(), imperial_metric_calc, uscups_output)
+            imperial_metric_calc = int(float(VolumeEntry.measurement_entry.get()) * 29.5735)
+            if float(VolumeEntry.measurement_entry.get()) > 0.5:
+                uscups_output = measurement_to_uscup_calc((float(VolumeEntry.measurement_entry.get())), VolumeField.oz_uscup_equiv)
+                imperial_output = "{}oz is {}mL or {} US cup(s) \n".format(VolumeEntry.measurement_entry.get(), imperial_metric_calc, uscups_output)
                 OutputField.insert(self, END, imperial_output)
             else:
-                vol_output = "{}oz is {}mL or {} tablespoon \n".format(volume_entry.get(), imperial_metric_calc, VolumeField.uscups_tablespoon)
+                vol_output = "{}oz is {}mL or {} tablespoon \n".format(VolumeEntry.measurement_entry.get(), imperial_metric_calc, VolumeField.uscups_tablespoon)
                 OutputField.insert(self, END, vol_output)
+        if volume_selection == 2:
+            uscup_to_oz = uscup_to_measurement_calc(VolumeEntry.measurement_entry.get(), VolumeField.oz_uscup_equiv)
+            uscup_to_ml = uscup_to_measurement_calc(VolumeEntry.measurement_entry.get(), VolumeField.ml_uscup_equiv)
+            uscup_output = "{} US Cup is {}mL or {}oz \n".format(VolumeEntry.measurement_entry.get(), uscup_to_ml, uscup_to_oz)
+            OutputField.insert(self, END, uscup_output)
 
 
+# create a title class for volume/mass etc
 class MeasurementTitle:
     def __init__(self, title_text, title_row, title_column, title_columnspan):
         self.title_text = title_text
@@ -62,11 +70,23 @@ class MeasurementTitle:
         self.title_columnspan = title_columnspan
 
         output = Label(window, text=self.title_text, padx=150, bg="dark grey", relief=FLAT, font="avenir 15 bold", fg="white", width=50)
-        output.grid(row=self.title_row, column=self.title_column, columnspan=self.title_columnspan, pady=(0, 10))
+        output.grid(row=self.title_row, column=self.title_column, columnspan=self.title_columnspan, pady=(10, 10))
 
 
+# create the entry class where the user enters the measurement to be converted
+class MeasurementEntry:
+    def __init__(self, entry_row, entry_column, entry_columnspan):
+        self.entry_row = entry_row
+        self.entry_column = entry_column
+        self.entry_columnspan = entry_columnspan
 
-def measurement_calc(input, one_cup_equiv):
+        self.measurement_entry = StringVar()
+        self.measurement_entry = Entry(window, textvariable=self.measurement_entry)
+        self.measurement_entry.grid(row=self.entry_row, column=self.entry_column, columnspan=self.entry_columnspan)
+
+
+# create a function which calculates an input and outputs it in US Cups
+def measurement_to_uscup_calc(input, one_cup_equiv):
     number_to_round = float(input) / one_cup_equiv * 100
     rounded_number = round_to_five(number_to_round)
     greatest_common_divisor = gcd(rounded_number, 100)
@@ -80,39 +100,37 @@ def measurement_calc(input, one_cup_equiv):
         return input_uscups_fraction
 
 
+# create a function which calculates an input and outputs it in metric/imperial
+def uscup_to_measurement_calc(input, one_cup_equiv):
+    numerator = input[0]
+    denominator = input[2:]
+    get_percent = int(numerator) / int(denominator) * 100
+    measurement = get_percent / 100 * one_cup_equiv
+    return int(measurement)
+
+
 # create a function which rounds to nearest 5, used for the metric to US cups func
 def round_to_five(number, base=5):
     return int(base * round(float(number) / base))
 
-# create the sfunction which converts metric to US cups (fractions)
-# def metric_to_uscups(metric_number):
-#     number_to_round = float(metric_number) / 250 *100
-#     rounded_number = round_to_five(number_to_round)
-#     greatest_common_divisor = gcd(rounded_number, 100)
-#     lowest_numerator = rounded_number / greatest_common_divisor
-#     lowest_denominator = 100 / greatest_common_divisor
-#     metric_uscups_fraction = Fraction(int(lowest_numerator), int(lowest_denominator))
-#     if lowest_numerator > lowest_denominator:
-#         metric_uscups_cups = lowest_numerator / lowest_denominator
-#         return metric_uscups_cups
-#     else:
-#         return metric_uscups_fraction
 
 # create title for application
 tite_text = Label(window, text="The US & UK food measurement converter", font="avenir 30 bold", fg="white", bg="#2f4f4f")
 tite_text.grid(row=0, column=0, columnspan=5, padx=20, pady=(10, 0))
 
+
 # create subtitle for application
 subtitle_text = Label(window, text="Here you can enter measurements such as volume, mass and even spoons, then this application \n will convert them into their native meansurements", font="avenir 12", fg="white", bg="#2f4f4f")
 subtitle_text.grid(row=1, column=0, columnspan=5, padx=40, pady=(0, 15))
 
+
 # create the title for the volume conversion section
 VolumeTitle = MeasurementTitle("Volume", 2, 0, 4)
 
-# create the entry field where the user enters the volume to be converted
-volume_entry = StringVar()
-volume_entry = Entry(window, textvariable=volume_entry)
-volume_entry.grid(row=3, column=0, columnspan=1)
+
+# create entry child class where the user enters the volume to be converted
+VolumeEntry = MeasurementEntry(3, 0, 1)
+
 
 # create the list of volume measurements to be selected from
 volume_metric_list = Listbox(window, width=10, height=3, selectbackground="grey")
@@ -127,5 +145,13 @@ volume_output = VolumeField(3, 3, 3, 5)
 # create the 'convert' button for the volume conversion
 volume_convert_button = Button(window, text="Convert", highlightbackground="#2f4f4f", command=volume_output.volume_converter, )
 volume_convert_button.grid(row=3, column=2)
+
+
+# create the title for the weight conversion section
+MassTitle = MeasurementTitle("Mass", 4, 0, 4)
+
+
+# create entry child class where the user enters the mass to be converted
+MassEntry = MeasurementEntry(5, 0, 1)
 
 window.mainloop()
