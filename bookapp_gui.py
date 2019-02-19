@@ -2,6 +2,7 @@ from tkinter import *
 from fractions import Fraction, gcd
 
 window = Tk()
+window.configure(bg="#2f4f4f")
 
 # create list of volume measurements
 volumes = ["ml (Metric)", "oz (Imperial)", "US Cups"]
@@ -49,15 +50,15 @@ class MeasurementTitle:
         self.title_column = title_column
         self.title_columnspan = title_columnspan
 
-        output = Label(window, text=self.title_text, padx=40, bg="dark grey", relief=FLAT, font="avenir", fg="white")
-        output.grid(row=self.title_row, column=self.title_column, columnspan=self.title_columnspan)
+        output = Label(window, text=self.title_text, padx=150, bg="dark grey", relief=FLAT, font="avenir 15 bold", fg="white", width=50)
+        output.grid(row=self.title_row, column=self.title_column, columnspan=self.title_columnspan, pady=(0, 10))
 
 
 # create a function which rounds to nearest 5, used for the metric to US cups func
 def round_to_five(number, base=5):
     return int(base * round(float(number) / base))
 
-# create the function which converts metric to US cups (fractions)
+# create the sfunction which converts metric to US cups (fractions)
 def metric_to_uscups(metric_number):
     number_to_round = float(metric_number) / 250 *100
     rounded_number = round_to_five(number_to_round)
@@ -72,15 +73,15 @@ def metric_to_uscups(metric_number):
         return metric_uscups_fraction
 
 # create title for application
-tite_text = Label(window, text="The US & UK food measurement converter", font="avenir 25")
-tite_text.grid(row=0, column=0, columnspan=3)
+tite_text = Label(window, text="The US & UK food measurement converter", font="avenir 30 bold", fg="white", bg="#2f4f4f")
+tite_text.grid(row=0, column=0, columnspan=5, padx=20, pady=(10, 0))
 
 # create subtitle for application
-subtitle_text = Label(window, text="Here you can enter measurements such as volumes, weights and even spoons, \n and then this application will convert them into their native meansurements for you", font="avenir 10")
-subtitle_text.grid(row=1, column=0, columnspan=3)
+subtitle_text = Label(window, text="Here you can enter measurements such as volume, mass and even spoons, then this application \n will convert them into their native meansurements", font="avenir 12", fg="white", bg="#2f4f4f")
+subtitle_text.grid(row=1, column=0, columnspan=5, padx=40, pady=(0, 15))
 
 # create the title for the volume conversion section
-VolumeTitle = MeasurementTitle("Volume", 2, 0, 3)
+VolumeTitle = MeasurementTitle("Volume", 2, 0, 4)
 
 # create the entry field where the user enters the volume to be converted
 volume_entry = StringVar()
@@ -98,7 +99,7 @@ volume_output = VolumeField(3, 3, 3, 5)
 
 
 # create the 'convert' button for the volume conversion
-volume_convert_button = Button(window, text="Convert", command=volume_output.volume_converter)
+volume_convert_button = Button(window, text="Convert", highlightbackground="#2f4f4f", command=volume_output.volume_converter, )
 volume_convert_button.grid(row=3, column=2)
 
 window.mainloop()
