@@ -4,9 +4,9 @@ from fractions import Fraction, gcd
 window = Tk()
 window.configure(bg="#2f4f4f")
 
-# create list of volume measurements
+# create list of measurements
 volumes = ["mL (Metric)", "Fluid oz (Imperial)", "US Cups"]
-volume_counter = 1
+mass = ["Mass oz (Imperial)", "grams (Metric)"]
 
 # create the output field class to be used for all conversion outputs
 class OutputField:
@@ -27,7 +27,7 @@ class OutputField:
         self.output.insert(text_position, conversion_output)
 
 
-# create the volume field class to be used for volume outputs
+# create the volume field child class to be used for volume conversions
 class VolumeField(OutputField):
 
     uscups_tablespoon = 1
@@ -35,7 +35,7 @@ class VolumeField(OutputField):
     oz_uscup_equiv = 8
 
     def volume_converter(self):
-        volume_selection = volume_metric_list.curselection()[0]
+        volume_selection = VolumeList.measurement_list.curselection()[0]
         if volume_selection == 0:
             metric_imperial_calc = int(int(VolumeEntry.measurement_entry.get()) * 0.0351951)
             if float(VolumeEntry.measurement_entry.get()) > 30:
@@ -61,6 +61,14 @@ class VolumeField(OutputField):
             OutputField.insert(self, END, uscup_output)
 
 
+# create the mass field child class to be used for mass conversions
+class MassField(OutputField):
+    def mass_converter(self):
+        mass_selection = MassList.measurement_list.curselection()[0]
+        if volume_selection == 0:
+            OutputField.insert(self, END, "success")
+
+
 # create a title class for volume/mass etc
 class MeasurementTitle:
     def __init__(self, title_text, title_row, title_column, title_columnspan):
@@ -83,6 +91,37 @@ class MeasurementEntry:
         self.measurement_entry = StringVar()
         self.measurement_entry = Entry(window, textvariable=self.measurement_entry)
         self.measurement_entry.grid(row=self.entry_row, column=self.entry_column, columnspan=self.entry_columnspan)
+
+
+# create the list of volume measurements to be selected from
+class MeasurementList:
+
+    counter = 1
+
+    def __init__(self, list, list_row, list_column):
+        self.list = list
+        self.list_row = list_row
+        self.list_column = list_column
+
+        self.measurement_list = Listbox(window, width=10, height=3, selectbackground="grey")
+        for item in list:
+            self.measurement_list.insert(MeasurementList.counter, item)
+            MeasurementList.counter +=1
+        self.measurement_list.grid(row=self.list_row, column=self.list_column)
+
+
+# create the class 'convert' button for the measurement conversion
+class MeasurementButton:
+    def __init__(self, class_measurement_converter, button_row, button_column):
+        self.class_measurement_converter = class_measurement_converter
+        self.button_row = button_row
+        self.button_column = button_column
+
+        convert_button = Button(window, text="Convert", highlightbackground="#2f4f4f", command=self.class_measurement_converter)
+        convert_button.grid(row=self.button_row, column=self.button_column)
+
+# create the volume child class which calculates the volume outputs
+VolumeOutput = VolumeField(3, 3, 3, 5)
 
 
 # create a function which calculates an input and outputs it in US Cups
@@ -132,19 +171,12 @@ VolumeTitle = MeasurementTitle("Volume", 2, 0, 4)
 VolumeEntry = MeasurementEntry(3, 0, 1)
 
 
-# create the list of volume measurements to be selected from
-volume_metric_list = Listbox(window, width=10, height=3, selectbackground="grey")
-for item in volumes:
-    volume_metric_list.insert(volume_counter, item)
-    volume_counter +=1
-volume_metric_list.grid(row=3, column=1)
-
-volume_output = VolumeField(3, 3, 3, 5)
+# create list child class of volume measurements which user selects from
+VolumeList = MeasurementList(volumes, 3, 1)
 
 
-# create the 'convert' button for the volume conversion
-volume_convert_button = Button(window, text="Convert", highlightbackground="#2f4f4f", command=volume_output.volume_converter, )
-volume_convert_button.grid(row=3, column=2)
+# create the 'convert' child class button for the volume conversion
+VolumeButton = MeasurementButton(VolumeOutput.volume_converter, 3, 2)
 
 
 # create the title for the weight conversion section
@@ -153,5 +185,11 @@ MassTitle = MeasurementTitle("Mass", 4, 0, 4)
 
 # create entry child class where the user enters the mass to be converted
 MassEntry = MeasurementEntry(5, 0, 1)
+
+
+# create list child class of mass measurements which user selects from
+MassList = MeasurementList(mass, 5, 1)
+
+
 
 window.mainloop()
