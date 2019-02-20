@@ -7,6 +7,7 @@ window.configure(bg="#2f4f4f")
 # create list of measurements
 volumes = ["mL (Metric)", "Fluid oz (Imperial)", "US Cups"]
 mass = ["Mass oz (Imperial)", "grams (Metric)"]
+spoons = ["Teaspoons", "Tablespoons", "mL (Metric)"]
 
 # create the output field class to be used for all conversion outputs
 class OutputField:
@@ -16,7 +17,7 @@ class OutputField:
         self.scroll_row = scroll_row
         self.scroll_column = scroll_column
 
-        self.output = Text(window, wrap="word", font="avenir", height=3, width=30)
+        self.output = Text(window, wrap="word", font="avenir", height=3, width=33)
         scrollbar = Scrollbar(window)
         scrollbar.config(command=self.output.yview)
         self.output.config(yscrollcommand=scrollbar.set)
@@ -75,16 +76,36 @@ class MassField(OutputField):
             OutputField.insert(self, END, gram_output)
 
 
+# create the Spoons field child class to be used for spoons conversions
+class SpoonsField(OutputField):
+    def spoons_converter(self):
+        spoons_selection = SpoonsList.measurement_list.curselection()[0]
+        if spoons_selection == 0:
+            teaspoon_tablespoon_calc = round(float(int(SpoonsEntry.measurement_entry.get()) * 0.33333), 1)
+            teaspoon_ml_calc = int(int(SpoonsEntry.measurement_entry.get()) * 5.91939)
+            teaspoon_output = "{} teaspoon(s) is {} tablespoon(s) or {}mL \n".format(SpoonsEntry.measurement_entry.get(), teaspoon_tablespoon_calc, teaspoon_ml_calc)
+            OutputField.insert(self, END, teaspoon_output)
+        if spoons_selection == 1:
+            tablespoon_teaspoon_calc = int(int(SpoonsEntry.measurement_entry.get()) * 3)
+            tablespoon_ml_calc = int(int(SpoonsEntry.measurement_entry.get()) * 17.7582)
+            tablespoon_output = "{} tablespoon(s) is {} teaspoon(s) or {}mL \n".format(SpoonsEntry.measurement_entry.get(), tablespoon_teaspoon_calc, tablespoon_ml_calc)
+            OutputField.insert(self, END, tablespoon_output)
+        if spoons_selection == 2:
+            ml_teaspoon_calc = round(float(int(SpoonsEntry.measurement_entry.get()) * 0.168936), 1)
+            ml_tablespoon_calc = round(float(int(SpoonsEntry.measurement_entry.get()) * 0.0563121), 1)
+            ml_output = "{}mL is {} teaspoon(s) or {} tablespoon(s) \n".format(SpoonsEntry.measurement_entry.get(), ml_teaspoon_calc, ml_tablespoon_calc)
+            OutputField.insert(self, END, ml_output)
+
+
 # create a title class for volume/mass etc
 class MeasurementTitle:
-    def __init__(self, title_text, title_row, title_column, title_columnspan):
+    def __init__(self, title_text, title_row, title_column):
         self.title_text = title_text
         self.title_row = title_row
         self.title_column = title_column
-        self.title_columnspan = title_columnspan
 
         output = Label(window, text=self.title_text, padx=150, bg="dark grey", relief=FLAT, font="avenir 15 bold", fg="white", width=50)
-        output.grid(row=self.title_row, column=self.title_column, columnspan=self.title_columnspan, pady=(10, 10))
+        output.grid(row=self.title_row, column=self.title_column, columnspan=6, pady=10, padx=10)
 
 
 # create the entry class where the user enters the measurement to be converted
@@ -109,7 +130,7 @@ class MeasurementList:
         self.list_row = list_row
         self.list_column = list_column
 
-        self.measurement_list = Listbox(window, width=10, height=3, selectbackground="grey")
+        self.measurement_list = Listbox(window, width=15, height=3, selectbackground="grey")
         for item in list:
             self.measurement_list.insert(MeasurementList.counter, item)
             MeasurementList.counter +=1
@@ -132,6 +153,10 @@ VolumeOutput = VolumeField(3, 3, 3, 5)
 
 # create the mass child class which calculates the mass outputs
 MassOutput = MassField(5, 3, 5, 5)
+
+
+# create the mass child class which calculates the mass outputs
+SpoonsOutput = SpoonsField(7, 3, 7, 5)
 
 
 # create a function which calculates an input and outputs it in US Cups
@@ -169,12 +194,12 @@ tite_text.grid(row=0, column=0, columnspan=5, padx=20, pady=(10, 0))
 
 
 # create subtitle for application
-subtitle_text = Label(window, text="Here you can enter measurements such as volume, mass and even spoons, then this application \n will convert them into their native meansurements", font="avenir 12", fg="white", bg="#2f4f4f")
+subtitle_text = Label(window, text="Here you can enter measurements such as volume, mass and even spoons, then this application \n will convert them into their native meansurements", font="avenir 14", fg="white", bg="#2f4f4f")
 subtitle_text.grid(row=1, column=0, columnspan=5, padx=40, pady=(0, 15))
 
 
 # create the title for the volume conversion section
-VolumeTitle = MeasurementTitle("Volume", 2, 0, 4)
+VolumeTitle = MeasurementTitle("Volume", 2, 0)
 
 
 # create entry child class where the user enters the volume to be converted
@@ -190,7 +215,7 @@ VolumeButton = MeasurementButton(VolumeOutput.volume_converter, 3, 2)
 
 
 # create the title for the weight conversion section
-MassTitle = MeasurementTitle("Mass", 4, 0, 4)
+MassTitle = MeasurementTitle("Mass", 4, 0)
 
 
 # create entry child class where the user enters the mass to be converted
@@ -205,16 +230,32 @@ MassList = MeasurementList(mass, 5, 1)
 MassButton = MeasurementButton(MassOutput.mass_converter, 5, 2)
 
 
-# create the title for the volume conversion section
-VolumeTitle = MeasurementTitle("Spoons", 2, 0, 4)
+# create the title for the Spoons conversion section
+SpoonsTitle = MeasurementTitle("Spoons", 6, 0)
 
 
-# create entry child class where the user enters the volume to be converted
-VolumeEntry = MeasurementEntry(3, 0, 1)
+# create entry child class where the user enters the Spoons to be converted
+SpoonsEntry = MeasurementEntry(7, 0, 1)
 
 
-# create list child class of volume measurements which user selects from
-VolumeList = MeasurementList(volumes, 3, 1)
+# create list child class of Spoons measurements which user selects from
+SpoonsList = MeasurementList(spoons, 7, 1)
+
+
+# create the 'convert' child class button for the Spoons conversion
+SpoonsButton = MeasurementButton(SpoonsOutput.spoons_converter, 7, 2)
+
+
+# create the title for the notes section
+NotesTitle = MeasurementTitle("Notes", 9, 0)
+
+# create notes section
+notes = Text(window, wrap="word", font="avenir", height=10, width=83)
+notes_scrollbar = Scrollbar(window)
+notes_scrollbar.config(command=notes.yview)
+notes.config(yscrollcommand=notes_scrollbar.set)
+notes.grid(row=10, column=0, columnspan=4, pady=(4, 10))
+notes_scrollbar.grid(row=10, column=5, sticky="nsw")
 
 
 window.mainloop()
