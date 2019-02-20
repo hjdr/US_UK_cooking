@@ -65,8 +65,14 @@ class VolumeField(OutputField):
 class MassField(OutputField):
     def mass_converter(self):
         mass_selection = MassList.measurement_list.curselection()[0]
-        if volume_selection == 0:
-            OutputField.insert(self, END, "success")
+        if mass_selection == 0:
+            oz_gram_calc = int(int(MassEntry.measurement_entry.get()) * 28.3495)
+            oz_output = "{}oz is {} grams \n".format(MassEntry.measurement_entry.get(), oz_gram_calc)
+            OutputField.insert(self, END, oz_output)
+        if mass_selection == 1:
+            gram_oz_calc = int(int(MassEntry.measurement_entry.get()) * 0.035274)
+            gram_output = "{} grams is {}oz \n".format(MassEntry.measurement_entry.get(), gram_oz_calc)
+            OutputField.insert(self, END, gram_output)
 
 
 # create a title class for volume/mass etc
@@ -122,6 +128,10 @@ class MeasurementButton:
 
 # create the volume child class which calculates the volume outputs
 VolumeOutput = VolumeField(3, 3, 3, 5)
+
+
+# create the mass child class which calculates the mass outputs
+MassOutput = MassField(5, 3, 5, 5)
 
 
 # create a function which calculates an input and outputs it in US Cups
@@ -190,6 +200,21 @@ MassEntry = MeasurementEntry(5, 0, 1)
 # create list child class of mass measurements which user selects from
 MassList = MeasurementList(mass, 5, 1)
 
+
+# create the 'convert' child class button for the mass conversion
+MassButton = MeasurementButton(MassOutput.mass_converter, 5, 2)
+
+
+# create the title for the volume conversion section
+VolumeTitle = MeasurementTitle("Spoons", 2, 0, 4)
+
+
+# create entry child class where the user enters the volume to be converted
+VolumeEntry = MeasurementEntry(3, 0, 1)
+
+
+# create list child class of volume measurements which user selects from
+VolumeList = MeasurementList(volumes, 3, 1)
 
 
 window.mainloop()
